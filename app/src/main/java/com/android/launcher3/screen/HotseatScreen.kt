@@ -15,8 +15,6 @@ import com.android.launcher3.model.AppInfo
 import com.android.launcher3.state.LauncherViewModel
 import com.android.launcher3.theme.AppIcon
 import dev.chrisbanes.haze.HazeState
-import dev.chrisbanes.haze.hazeEffect
-import dev.chrisbanes.haze.hazeSource
 
 @Composable
 fun HotseatScreen(
@@ -34,7 +32,6 @@ fun HotseatScreen(
             .height(80.dp)
             .padding(horizontal = 12.dp, vertical = 8.dp)
             .clip(RoundedCornerShape(20.dp))
-            .hazeSource(hazeState)
             .background(bgColor, RoundedCornerShape(20.dp))
     ) {
         Row(

@@ -97,8 +97,7 @@ private fun WorkspacePage(
             Box(
                 modifier = Modifier
                     .size(cellWidth, cellHeight)
-                    .padding(4.dp),
-                contentAlignment = Alignment.Center
+                    .padding(4.dp)
             )
         }
 

@@ -57,21 +57,14 @@ class LauncherActivity : ComponentActivity() {
                     }
 
                     if (uiState.currentPage == LauncherPage.WORKSPACE) {
-                        Box(
+                        HotseatScreen(
+                            viewModel = viewModel,
+                            hazeState = hazeState,
                             modifier = Modifier
                                 .align(Alignment.BottomCenter)
                                 .fillMaxWidth()
-                        ) {
-                            HotseatScreen(
-                                viewModel = viewModel,
-                                hazeState = hazeState,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .hazeEffect(hazeState) {
-                                        blurRadius = 32f
-                                    }
-                            )
-                        }
+                                .hazeEffect(hazeState)
+                        )
                     }
 
                     if (uiState.openFolderId != null) {
