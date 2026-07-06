@@ -494,14 +494,14 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
-    fun setShowNotificationDots(show: Boolean) {
+    fun updateNotificationDots(show: Boolean) {
         viewModelScope.launch {
             prefs.setShowNotificationDots(show)
             showNotificationDots = show
         }
     }
 
-    fun setShowSearchBar(show: Boolean) {
+    fun updateShowSearchBar(show: Boolean) {
         viewModelScope.launch {
             prefs.setShowSearchBar(show)
             showSearchBar = show

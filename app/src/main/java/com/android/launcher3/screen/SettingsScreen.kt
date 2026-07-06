@@ -111,7 +111,7 @@ fun SettingsScreen(
                     trailing = {
                         Switch(
                             checked = viewModel.showNotificationDots,
-                            onCheckedChange = { viewModel.setShowNotificationDots(it) }
+                            onCheckedChange = { viewModel.updateNotificationDots(it) }
                         )
                     }
                 )
@@ -124,7 +124,7 @@ fun SettingsScreen(
                     trailing = {
                         Switch(
                             checked = viewModel.showSearchBar,
-                            onCheckedChange = { viewModel.setShowSearchBar(it) }
+                            onCheckedChange = { viewModel.updateShowSearchBar(it) }
                         )
                     }
                 )
