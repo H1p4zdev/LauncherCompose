@@ -40,7 +40,7 @@ fun WorkspaceScreen(
         listState.animateScrollToItem(uiState.workspacePageIndex)
     }
 
-    Box(modifier = modifier.fillMaxSize()) {
+    Box(modifier = modifier.fillMaxSize().statusBarsPadding()) {
         LazyRow(
             state = listState,
             modifier = Modifier
@@ -223,7 +223,7 @@ private fun PageIndicator(
 ) {
     if (pageCount <= 1) return
     Row(
-        modifier = modifier,
+        modifier = modifier.navigationBarsPadding(),
         horizontalArrangement = Arrangement.spacedBy(6.dp)
     ) {
         repeat(pageCount) { index ->

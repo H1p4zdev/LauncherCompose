@@ -64,6 +64,7 @@ class LauncherActivity : ComponentActivity() {
                                 .align(Alignment.BottomCenter)
                                 .fillMaxWidth()
                                 .hazeEffect(hazeState)
+                                .navigationBarsPadding()
                         )
                     }
 

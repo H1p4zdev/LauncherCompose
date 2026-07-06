@@ -33,7 +33,7 @@ fun AllAppsScreen(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
-        Spacer(modifier = Modifier.height(48.dp))
+        Spacer(modifier = Modifier.statusBarsPadding())
 
         Text(
             text = "All Apps",
@@ -106,7 +106,7 @@ fun AllAppsScreen(
             }
         } else {
             LazyColumn(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier.fillMaxSize().navigationBarsPadding(),
                 contentPadding = PaddingValues(horizontal = 16.dp, vertical = 4.dp),
                 verticalArrangement = Arrangement.spacedBy(0.dp)
             ) {
