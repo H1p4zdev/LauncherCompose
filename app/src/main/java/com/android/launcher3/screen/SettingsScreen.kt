@@ -3,7 +3,6 @@ package com.android.launcher3.screen
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -13,23 +12,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
+import com.android.launcher3.state.LauncherViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
+    viewModel: LauncherViewModel,
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var gridRows by remember { mutableIntStateOf(5) }
-    var gridCols by remember { mutableIntStateOf(4) }
-    var hotseatCount by remember { mutableIntStateOf(5) }
-    var showNotificationDots by remember { mutableStateOf(true) }
-    var showSearchBar by remember { mutableStateOf(true) }
-
     Column(
         modifier = modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
+            .statusBarsPadding()
     ) {
         Row(
             modifier = Modifier
@@ -69,13 +65,15 @@ fun SettingsScreen(
             item {
                 SettingsItem(
                     title = "Grid rows",
-                    summary = "$gridRows rows",
+                    summary = "${viewModel.deviceProfile.rows} rows",
                     trailing = {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             for (i in 4..7) {
                                 FilterChip(
-                                    selected = gridRows == i,
-                                    onClick = { gridRows = i },
+                                    selected = viewModel.deviceProfile.rows == i,
+                                    onClick = {
+                                        viewModel.updateGrid(i, viewModel.deviceProfile.columns)
+                                    },
                                     label = { Text("$i") },
                                     modifier = Modifier.padding(horizontal = 2.dp)
                                 )
@@ -88,13 +86,15 @@ fun SettingsScreen(
             item {
                 SettingsItem(
                     title = "Grid columns",
-                    summary = "$gridCols columns",
+                    summary = "${viewModel.deviceProfile.columns} columns",
                     trailing = {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             for (i in 3..6) {
                                 FilterChip(
-                                    selected = gridCols == i,
-                                    onClick = { gridCols = i },
+                                    selected = viewModel.deviceProfile.columns == i,
+                                    onClick = {
+                                        viewModel.updateGrid(viewModel.deviceProfile.rows, i)
+                                    },
                                     label = { Text("$i") },
                                     modifier = Modifier.padding(horizontal = 2.dp)
                                 )
@@ -110,8 +110,8 @@ fun SettingsScreen(
                     summary = "Badge icons with notification count",
                     trailing = {
                         Switch(
-                            checked = showNotificationDots,
-                            onCheckedChange = { showNotificationDots = it }
+                            checked = viewModel.showNotificationDots,
+                            onCheckedChange = { viewModel.setShowNotificationDots(it) }
                         )
                     }
                 )
@@ -123,8 +123,8 @@ fun SettingsScreen(
                     summary = "Display search bar on home screen",
                     trailing = {
                         Switch(
-                            checked = showSearchBar,
-                            onCheckedChange = { showSearchBar = it }
+                            checked = viewModel.showSearchBar,
+                            onCheckedChange = { viewModel.setShowSearchBar(it) }
                         )
                     }
                 )
@@ -143,13 +143,13 @@ fun SettingsScreen(
             item {
                 SettingsItem(
                     title = "Hotseat icons",
-                    summary = "$hotseatCount icons",
+                    summary = "${viewModel.deviceProfile.hotseatCount} icons",
                     trailing = {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             for (i in 3..7) {
                                 FilterChip(
-                                    selected = hotseatCount == i,
-                                    onClick = { hotseatCount = i },
+                                    selected = viewModel.deviceProfile.hotseatCount == i,
+                                    onClick = { viewModel.updateHotseatCount(i) },
                                     label = { Text("$i") },
                                     modifier = Modifier.padding(horizontal = 2.dp)
                                 )

@@ -4,7 +4,6 @@ import android.app.Application
 import android.content.Context
 import android.content.Intent
 import android.content.pm.LauncherApps
-import android.graphics.drawable.Drawable
 import android.os.Process
 import android.os.UserHandle
 import android.os.UserManager
@@ -14,15 +13,18 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.android.launcher3.model.AppInfo
+import com.android.launcher3.model.DeviceProfile
 import com.android.launcher3.model.FolderInfo
 import com.android.launcher3.model.HomeScreenPage
 import com.android.launcher3.model.HotseatInfo
 import com.android.launcher3.model.LauncherItem
 import com.android.launcher3.model.WidgetInfo
+import com.android.launcher3.util.LauncherPreferences
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class LauncherViewModel(application: Application) : AndroidViewModel(application) {
@@ -31,11 +33,12 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
         application.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
     private val userManager: UserManager =
         application.getSystemService(Context.USER_SERVICE) as UserManager
+    val prefs = LauncherPreferences(application)
 
     private val _uiState = MutableStateFlow(LauncherUiState())
     val uiState: StateFlow<LauncherUiState> = _uiState.asStateFlow()
 
-    var deviceProfile by mutableStateOf(com.android.launcher3.model.DeviceProfile())
+    var deviceProfile by mutableStateOf(DeviceProfile())
         private set
 
     var pages by mutableStateOf(listOf<HomeScreenPage>())
@@ -56,10 +59,21 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
     var isLoading by mutableStateOf(true)
         private set
 
+    var showNotificationDots by mutableStateOf(true)
+        private set
+
+    var showSearchBar by mutableStateOf(true)
+        private set
+
     private val currentUser: UserHandle = Process.myUserHandle()
 
     init {
-        loadApps()
+        viewModelScope.launch {
+            deviceProfile = prefs.deviceProfile.first()
+            showNotificationDots = prefs.showNotificationDots.first()
+            showSearchBar = prefs.showSearchBar.first()
+            loadApps()
+        }
     }
 
     private fun loadApps() {
@@ -75,7 +89,6 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
                         val activity = activityList[i]
                         val componentName = activity.componentName
                         if (componentName.packageName == "com.android.launcher3") continue
-                        val isMainUser = profile == currentUser || profile.hashCode() == currentUser.hashCode()
                         apps.add(
                             AppInfo(
                                 id = i.toLong(),
@@ -93,44 +106,84 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
 
                 allApps = apps.sortedBy { it.title.lowercase() }
 
-                val mainUserApps = apps.filter {
-                    it.user == currentUser || it.user.hashCode() == currentUser.hashCode()
-                }
-                val itemCount = mainUserApps.size
-                val cols = deviceProfile.columns
-                val totalSlots = cols * deviceProfile.rows
-                val itemsForWorkspace = mainUserApps.take(totalSlots - deviceProfile.hotseatCount)
-
-                if (itemsForWorkspace.isNotEmpty()) {
-                    val pageItems = itemsForWorkspace.mapIndexed { index, app ->
-                        val pageIndex = index / totalSlots
-                        val posInPage = index % totalSlots
-                        app.copy(
-                            screenId = pageIndex.toLong(),
-                            cellX = posInPage % cols,
-                            cellY = posInPage / cols
-                        )
-                    }
-                    val grouped = pageItems.groupBy { it.screenId }
-                    pages = grouped.map { (screenId, items) ->
-                        HomeScreenPage(screenId, items)
-                    }.ifEmpty { listOf(HomeScreenPage(0)) }
-                } else {
-                    pages = listOf(HomeScreenPage(0))
-                }
-
-                val hotseatItems = mainUserApps.drop(
-                    (itemCount - deviceProfile.hotseatCount).coerceAtLeast(0)
-                ).take(deviceProfile.hotseatCount)
-                    .mapIndexed { index, app ->
-                        app.copy(screenId = -1, cellX = index, cellY = 0)
-                    }
-                hotseat = HotseatInfo(hotseatItems, deviceProfile.hotseatCount)
+                regenerateWorkspace()
             } catch (_: Exception) {
                 pages = listOf(HomeScreenPage(0))
             } finally {
                 isLoading = false
             }
+        }
+    }
+
+    private fun regenerateWorkspace() {
+        val dp = deviceProfile
+        val cols = dp.columns
+        val slotsPerScreen = cols * dp.rows
+        val hotseatSlots = dp.hotseatCount
+
+        val mainUserApps = allApps.filter {
+            it.user == currentUser || it.user.hashCode() == currentUser.hashCode()
+        }
+        val totalSlots = slotsPerScreen + hotseatSlots
+        val itemsForWorkspace = mainUserApps.take(totalSlots - hotseatSlots)
+        val hotseatFromApps = mainUserApps.drop(
+            (mainUserApps.size - hotseatSlots).coerceAtLeast(0)
+        ).take(hotseatSlots)
+
+        if (itemsForWorkspace.isNotEmpty()) {
+            val pageItems = itemsForWorkspace.mapIndexed { index, app ->
+                val pageIndex = index / slotsPerScreen
+                val posInPage = index % slotsPerScreen
+                app.copy(
+                    screenId = pageIndex.toLong(),
+                    cellX = posInPage % cols,
+                    cellY = posInPage / cols
+                )
+            }
+            val grouped = pageItems.groupBy { it.screenId }
+            pages = grouped.map { (screenId, items) ->
+                HomeScreenPage(screenId, items)
+            }.ifEmpty { listOf(HomeScreenPage(0)) }
+        } else {
+            pages = listOf(HomeScreenPage(0))
+        }
+
+        hotseat = HotseatInfo(
+            items = hotseatFromApps.mapIndexed { index, app ->
+                app.copy(screenId = -1, cellX = index, cellY = 0)
+            },
+            maxCount = hotseatSlots
+        )
+    }
+
+    fun updateGrid(rows: Int, columns: Int) {
+        viewModelScope.launch {
+            prefs.setGridRows(rows)
+            prefs.setGridColumns(columns)
+            deviceProfile = deviceProfile.copy(rows = rows, columns = columns)
+            regenerateWorkspace()
+        }
+    }
+
+    fun updateHotseatCount(count: Int) {
+        viewModelScope.launch {
+            prefs.setHotseatCount(count)
+            deviceProfile = deviceProfile.copy(hotseatCount = count)
+            regenerateWorkspace()
+        }
+    }
+
+    fun setShowNotificationDots(show: Boolean) {
+        viewModelScope.launch {
+            prefs.setShowNotificationDots(show)
+            showNotificationDots = show
+        }
+    }
+
+    fun setShowSearchBar(show: Boolean) {
+        viewModelScope.launch {
+            prefs.setShowSearchBar(show)
+            showSearchBar = show
         }
     }
 
