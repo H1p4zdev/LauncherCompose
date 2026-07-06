@@ -1,0 +1,185 @@
+package com.android.launcher3.screen
+
+import androidx.compose.animation.*
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import com.android.launcher3.model.AppInfo
+import com.android.launcher3.state.LauncherViewModel
+import com.android.launcher3.theme.AppIcon
+import com.alexzhirkevich.cupertino.CupertinoSearchField
+import com.alexzhirkevich.cupertino.CupertinoSearchFieldDefaults
+import com.alexzhirkevich.cupertino.adaptive.Adaptive
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AllAppsScreen(
+    viewModel: LauncherViewModel,
+    modifier: Modifier = Modifier
+) {
+    val uiState by viewModel.uiState.collectAsState()
+    var searchQuery by remember { mutableStateOf("") }
+    val filteredApps = viewModel.getFilteredApps(searchQuery)
+    val isDark = MaterialTheme.colorScheme.background.luminance() < 0.5f
+
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+    ) {
+        Spacer(modifier = Modifier.height(48.dp))
+
+        Text(
+            text = "All Apps",
+            style = MaterialTheme.typography.headlineLarge,
+            color = MaterialTheme.colorScheme.onBackground,
+            modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+                .height(48.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .background(
+                    if (isDark) Color(0x332C2C2E) else Color(0x33000000)
+                ),
+            contentAlignment = Alignment.CenterStart
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Search,
+                    contentDescription = "Search",
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(20.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                var text by remember { mutableStateOf("") }
+                BasicTextField(
+                    value = text,
+                    onValueChange = {
+                        text = it
+                        searchQuery = it
+                    },
+                    modifier = Modifier.weight(1f),
+                    textStyle = MaterialTheme.typography.bodyLarge.copy(
+                        color = MaterialTheme.colorScheme.onSurface
+                    ),
+                    decorationBox = { innerTextField ->
+                        if (text.isEmpty()) {
+                            Text(
+                                text = "Search apps",
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        innerTextField()
+                    },
+                    singleLine = true
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        if (filteredApps.isEmpty()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(32.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "No apps found",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center
+                )
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 4.dp),
+                verticalArrangement = Arrangement.spacedBy(0.dp)
+            ) {
+                val grouped = filteredApps.groupBy { it.title.firstOrNull()?.uppercase() ?: "#" }
+                grouped.forEach { (letter, apps) ->
+                    item(key = "header_$letter") {
+                        Text(
+                            text = letter,
+                            style = MaterialTheme.typography.titleSmall,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.padding(vertical = 8.dp, horizontal = 4.dp)
+                        )
+                    }
+                    items(
+                        items = apps,
+                        key = { it.componentName.flattenToString() + "_" + it.user.hashCode() }
+                    ) { appInfo ->
+                        AllAppsItem(
+                            appInfo = appInfo,
+                            onClick = { viewModel.launchApp(appInfo) }
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun AllAppsItem(
+    appInfo: AppInfo,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 2.dp)
+            .clip(RoundedCornerShape(12.dp))
+            .then(
+                Modifier.background(
+                    MaterialTheme.colorScheme.surface.copy(alpha = 0.001f)
+                )
+            ),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        AppIcon(
+            appInfo = appInfo,
+            modifier = Modifier.size(40.dp)
+        )
+        Spacer(modifier = Modifier.width(12.dp))
+        Column {
+            Text(
+                text = appInfo.title,
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Text(
+                text = appInfo.componentName.packageName,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}

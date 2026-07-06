@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Launcher</string>
+    <string name="all_apps_label">All Apps</string>
+    <string name="workspace_label">Home</string>
+    <string name="widget_picker_label">Widgets</string>
+    <string name="settings_label">Settings</string>
+    <string name="search_hint">Search apps</string>
+    <string name="folder_empty">Empty folder</string>
+    <string name="close">Close</string>
+    <string name="no_apps_found">No apps found</string>
+    <string name="no_widgets_found">No widgets found</string>
+</resources>
