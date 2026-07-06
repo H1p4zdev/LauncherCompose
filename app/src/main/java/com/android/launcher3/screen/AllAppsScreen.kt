@@ -152,8 +152,8 @@ private fun AllAppsItem(
             .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.001f))
             .pointerInput(Unit) {
                 detectTapGestures(
-                    onTap = onClick,
-                    onLongPress = onAddToWorkspace
+                    onTap = { onClick() },
+                    onLongPress = { onAddToWorkspace() }
                 )
             },
         verticalAlignment = Alignment.CenterVertically

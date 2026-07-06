@@ -2,7 +2,6 @@ package com.android.launcher3.state
 
 import android.app.Application
 import android.appwidget.AppWidgetManager
-import android.appwidget.AppWidgetProviderInfo
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -321,16 +320,16 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
                 val moving = page.items.find { it.id == itemId }
                 val existing = page.items.find { it.cellX == targetCellX && it.cellY == targetCellY && it.id != itemId }
                 if (moving != null && existing != null) {
-                    page.copy(items = page.items.map {
-                        when (it.id) {
-                            itemId -> it.copy(cellX = targetCellX, cellY = targetCellY)
-                            existing.id -> it.copy(cellX = moving.cellX, cellY = moving.cellY)
-                            else -> it
+                    page.copy(items = page.items.map { item ->
+                        when {
+                            item.id == itemId -> updateItemPosition(item, targetCellX, targetCellY)
+                            item.id == existing.id -> updateItemPosition(item, moving.cellX, moving.cellY)
+                            else -> item
                         }
                     })
                 } else if (moving != null) {
-                    page.copy(items = page.items.map {
-                        if (it.id == itemId) it.copy(cellX = targetCellX, cellY = targetCellY) else it
+                    page.copy(items = page.items.map { item ->
+                        if (item.id == itemId) updateItemPosition(item, targetCellX, targetCellY) else item
                     })
                 } else page
             } else {
@@ -338,6 +337,14 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
             }
         }
         saveLayout()
+    }
+
+    private fun updateItemPosition(item: LauncherItem, cellX: Int, cellY: Int): LauncherItem {
+        return when (item) {
+            is AppInfo -> item.copy(cellX = cellX, cellY = cellY)
+            is FolderInfo -> item.copy(cellX = cellX, cellY = cellY)
+            is WidgetInfo -> item.copy(cellX = cellX, cellY = cellY)
+        }
     }
 
     fun removeItem(itemId: Long) {

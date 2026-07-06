@@ -24,8 +24,9 @@ fun HotseatScreen(
     modifier: Modifier = Modifier
 ) {
     val hotseat = viewModel.hotseat
-    val isEditMode by viewModel.uiState.collectAsState { it.isEditMode }
     val dragState = viewModel.dragDropState
+    val badgeCounts = viewModel.notificationBadgeManager.badgeCounts.collectAsState().value
+    val showBadges = viewModel.showNotificationDots
 
     Box(
         modifier = modifier
@@ -94,9 +95,8 @@ fun HotseatScreen(
                         AppIcon(
                             appInfo = appInfo,
                             modifier = Modifier.size(48.dp),
-                            badgeCount = if (viewModel.showNotificationDots) {
-                                val key = appInfo.componentName.flattenToShortString() + "_" + appInfo.user.hashCode()
-                                viewModel.notificationBadgeManager.badgeCounts.value[key]
+                            badgeCount = if (showBadges) {
+                                badgeCounts[appInfo.componentName.flattenToShortString() + "_" + appInfo.user.hashCode()]
                             } else null
                         )
                     }

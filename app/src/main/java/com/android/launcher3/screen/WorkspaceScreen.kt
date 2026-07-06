@@ -352,63 +352,34 @@ private fun AppIconItem(
     isEditMode: Boolean = false
 ) {
     val dragState = viewModel.dragDropState
-    var itemPosition by remember { mutableStateOf(androidx.compose.ui.geometry.Offset.Zero) }
+    val badgeCounts = viewModel.notificationBadgeManager.badgeCounts.collectAsState().value
 
     Column(
         modifier = modifier
-            .onGloballyPositioned {
-                itemPosition = it.positionInRoot()
-            }
-            .pointerInput(Unit) {
-                detectTapGestures(
-                    onTap = {
-                        if (isEditMode) {
-                            viewModel.showContextMenu(appInfo, itemPosition.x, itemPosition.y)
-                        } else {
-                            viewModel.launchApp(appInfo)
-                        }
-                    },
-                    onLongPress = {
-                        if (!isEditMode) {
-                            dragState.startDrag(
-                                item = appInfo,
-                                sourceScreenId = appInfo.screenId,
-                                sourceCellX = appInfo.cellX,
-                                sourceCellY = appInfo.cellY
-                            )
-                        }
-                    }
-                )
-            }
             .then(
                 if (isEditMode) {
                     Modifier.pointerInput(appInfo.id) {
-                        detectDragGesturesAfterLongPress(
-                            onDragStart = {
+                        detectTapGestures(
+                            onTap = {
+                                viewModel.showContextMenu(appInfo, 0f, 0f)
+                            }
+                        )
+                    }
+                } else {
+                    Modifier.pointerInput(appInfo.id) {
+                        detectTapGestures(
+                            onTap = { viewModel.launchApp(appInfo) },
+                            onLongPress = {
                                 dragState.startDrag(
                                     item = appInfo,
                                     sourceScreenId = appInfo.screenId,
                                     sourceCellX = appInfo.cellX,
                                     sourceCellY = appInfo.cellY
                                 )
-                            },
-                            onDrag = { change, dragAmount ->
-                                change.consume()
-                                dragState.updatePosition(
-                                    dragState.dragX + dragAmount.x,
-                                    dragState.dragY + dragAmount.y
-                                )
-                            },
-                            onDragEnd = {
-                                val data = dragState.endDrag()
-                                if (data != null) {
-                                    viewModel.removeItem(data.item.id)
-                                }
-                            },
-                            onDragCancel = { dragState.cancelDrag() }
+                            }
                         )
                     }
-                } else Modifier
+                }
             ),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
@@ -417,8 +388,7 @@ private fun AppIconItem(
             appInfo = appInfo,
             modifier = Modifier.size(48.dp),
             badgeCount = if (viewModel.showNotificationDots) {
-                val key = appInfo.componentName.flattenToShortString() + "_" + appInfo.user.hashCode()
-                viewModel.notificationBadgeManager.badgeCounts.value[key]
+                badgeCounts[appInfo.componentName.flattenToShortString() + "_" + appInfo.user.hashCode()]
             } else null
         )
         Spacer(modifier = Modifier.height(4.dp))

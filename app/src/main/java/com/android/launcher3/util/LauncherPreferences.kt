@@ -177,6 +177,11 @@ class LauncherPreferences(private val context: Context) {
                 obj.put("type", "folder")
                 obj.put("title", item.title)
             }
+            is com.android.launcher3.model.WidgetInfo -> {
+                obj.put("type", "widget")
+                obj.put("widgetProviderName", item.providerName.flattenToString())
+                obj.put("title", item.label)
+            }
         }
         return obj
     }
