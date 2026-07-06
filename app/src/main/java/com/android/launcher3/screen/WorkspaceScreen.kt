@@ -1,6 +1,5 @@
 package com.android.launcher3.screen
 
-import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
@@ -14,7 +13,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import com.android.launcher3.model.AppInfo
 import com.android.launcher3.model.FolderInfo
@@ -25,11 +25,6 @@ import com.android.launcher3.state.LauncherPage
 import com.android.launcher3.state.LauncherViewModel
 import com.android.launcher3.theme.AppIcon
 import com.android.launcher3.theme.FolderIcon
-import com.android.launcher3.theme.launcherHazeStyle
-import com.android.launcher3.theme.rememberLauncherHazeState
-import dev.chrisbanes.haze.HazeEffect
-import dev.chrisbanes.haze.HazeProgressive
-import dev.chrisbanes.haze.HazeSource
 
 @Composable
 fun WorkspaceScreen(
@@ -37,7 +32,6 @@ fun WorkspaceScreen(
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val hazeState = rememberLauncherHazeState()
     val listState = rememberLazyListState(
         initialFirstVisibleItemIndex = uiState.workspacePageIndex
     )
@@ -85,17 +79,13 @@ private fun WorkspacePage(
     viewModel: LauncherViewModel,
     modifier: Modifier = Modifier
 ) {
-    val uiState by viewModel.uiState.collectAsState()
-    val isDark = MaterialTheme.colorScheme.background.luminance() < 0.5f
-    val density = androidx.compose.ui.platform.LocalDensity.current
-
+    val density = LocalDensity.current
+    val configuration = LocalConfiguration.current
     val cellWidth = with(density) {
-        (androidx.compose.ui.platform.LocalConfiguration.current.screenWidthDp.dp /
-            viewModel.deviceProfile.columns)
+        (configuration.screenWidthDp.dp / viewModel.deviceProfile.columns)
     }
     val cellHeight = with(density) {
-        ((androidx.compose.ui.platform.LocalConfiguration.current.screenHeightDp - 180).dp /
-            viewModel.deviceProfile.rows)
+        ((configuration.screenHeightDp - 180).dp / viewModel.deviceProfile.rows)
     }
 
     Box(modifier = modifier) {
@@ -103,15 +93,13 @@ private fun WorkspacePage(
             rows = viewModel.deviceProfile.rows,
             columns = viewModel.deviceProfile.columns,
             modifier = Modifier.fillMaxSize()
-        ) { row, col ->
+        ) { _, _ ->
             Box(
                 modifier = Modifier
                     .size(cellWidth, cellHeight)
                     .padding(4.dp),
                 contentAlignment = Alignment.Center
-            ) {
-                // Placeholder grid cell
-            }
+            )
         }
 
         page.items.forEach { item ->
@@ -138,7 +126,6 @@ private fun WorkspacePage(
                     )
                 }
                 is WidgetInfo -> {
-                    // Widget placeholder
                     Box(
                         modifier = posModifier
                             .clip(RoundedCornerShape(12.dp))
@@ -169,10 +156,7 @@ private fun AppIconItem(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        AppIcon(
-            appInfo = appInfo,
-            modifier = Modifier.size(48.dp)
-        )
+        AppIcon(appInfo = appInfo, modifier = Modifier.size(48.dp))
         Spacer(modifier = Modifier.height(4.dp))
         androidx.compose.material3.Text(
             text = appInfo.title,
@@ -200,10 +184,7 @@ private fun FolderItem(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        FolderIcon(
-            folderInfo = folderInfo,
-            modifier = Modifier.size(48.dp)
-        )
+        FolderIcon(folderInfo = folderInfo, modifier = Modifier.size(48.dp))
         Spacer(modifier = Modifier.height(4.dp))
         androidx.compose.material3.Text(
             text = folderInfo.title,

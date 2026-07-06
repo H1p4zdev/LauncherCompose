@@ -4,8 +4,9 @@ import android.app.Application
 import android.content.Context
 import android.content.Intent
 import android.content.pm.LauncherApps
-import android.content.pm.ShortcutInfo
 import android.graphics.drawable.Drawable
+import android.os.Process
+import android.os.UserHandle
 import android.os.UserManager
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -55,6 +56,8 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
     var isLoading by mutableStateOf(true)
         private set
 
+    private val currentUser: UserHandle = Process.myUserHandle()
+
     init {
         loadApps()
     }
@@ -72,6 +75,7 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
                         val activity = activityList[i]
                         val componentName = activity.componentName
                         if (componentName.packageName == "com.android.launcher3") continue
+                        val isMainUser = profile == currentUser || profile.hashCode() == currentUser.hashCode()
                         apps.add(
                             AppInfo(
                                 id = i.toLong(),
@@ -89,7 +93,9 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
 
                 allApps = apps.sortedBy { it.title.lowercase() }
 
-                val mainUserApps = apps.filter { !it.user.isSystemUser || it.user.hashCode() == 0 }
+                val mainUserApps = apps.filter {
+                    it.user == currentUser || it.user.hashCode() == currentUser.hashCode()
+                }
                 val itemCount = mainUserApps.size
                 val cols = deviceProfile.columns
                 val totalSlots = cols * deviceProfile.rows
@@ -108,15 +114,14 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
                     val grouped = pageItems.groupBy { it.screenId }
                     pages = grouped.map { (screenId, items) ->
                         HomeScreenPage(screenId, items)
-                    }.ifEmpty {
-                        listOf(HomeScreenPage(0))
-                    }
+                    }.ifEmpty { listOf(HomeScreenPage(0)) }
                 } else {
                     pages = listOf(HomeScreenPage(0))
                 }
 
-                val hotseatItems = mainUserApps.drop(itemCount - deviceProfile.hotseatCount.coerceAtMost(mainUserApps.size))
-                    .take(deviceProfile.hotseatCount)
+                val hotseatItems = mainUserApps.drop(
+                    (itemCount - deviceProfile.hotseatCount).coerceAtLeast(0)
+                ).take(deviceProfile.hotseatCount)
                     .mapIndexed { index, app ->
                         app.copy(screenId = -1, cellX = index, cellY = 0)
                     }
@@ -134,7 +139,10 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
     }
 
     fun setSearchQuery(query: String) {
-        _uiState.value = _uiState.value.copy(searchQuery = query, isSearchActive = query.isNotEmpty())
+        _uiState.value = _uiState.value.copy(
+            searchQuery = query,
+            isSearchActive = query.isNotEmpty()
+        )
     }
 
     fun openFolder(folderId: Long) {
@@ -146,7 +154,9 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
     }
 
     fun toggleEditMode() {
-        _uiState.value = _uiState.value.copy(isEditMode = !_uiState.value.isEditMode)
+        _uiState.value = _uiState.value.copy(
+            isEditMode = !_uiState.value.isEditMode
+        )
     }
 
     fun setWorkspacePage(index: Int) {
@@ -159,7 +169,10 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
                 val intent = Intent(Intent.ACTION_MAIN)
                     .addCategory(Intent.CATEGORY_LAUNCHER)
                     .setComponent(appInfo.componentName)
-                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
+                    .addFlags(
+                        Intent.FLAG_ACTIVITY_NEW_TASK or
+                        Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED
+                    )
                 getApplication<Application>().startActivity(intent)
             } catch (_: Exception) { }
         }

@@ -1,5 +1,6 @@
 package com.android.launcher3.theme
 
+import android.graphics.Bitmap
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -13,7 +14,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -27,11 +27,19 @@ fun AppIcon(
     size: Dp = 48.dp
 ) {
     val context = LocalContext.current
-    val iconPainter = remember(appInfo.componentName) {
+    val iconBitmap = remember(appInfo.componentName) {
         try {
             val pm = context.packageManager
-            val icon = pm.getActivityIcon(appInfo.componentName)
-            BitmapPainter(icon.asImageBitmap())
+            val drawable = pm.getActivityIcon(appInfo.componentName)
+            val bitmap = Bitmap.createBitmap(
+                drawable.intrinsicWidth.coerceAtLeast(1),
+                drawable.intrinsicHeight.coerceAtLeast(1),
+                Bitmap.Config.ARGB_8888
+            )
+            val canvas = android.graphics.Canvas(bitmap)
+            drawable.setBounds(0, 0, canvas.width, canvas.height)
+            drawable.draw(canvas)
+            bitmap
         } catch (_: Exception) {
             null
         }
@@ -41,9 +49,9 @@ fun AppIcon(
         modifier = modifier.size(size),
         contentAlignment = Alignment.Center
     ) {
-        if (iconPainter != null) {
+        if (iconBitmap != null) {
             Image(
-                painter = iconPainter,
+                painter = BitmapPainter(iconBitmap.asImageBitmap()),
                 contentDescription = appInfo.title,
                 modifier = Modifier
                     .size(size)
@@ -73,7 +81,6 @@ fun FolderIcon(
     modifier: Modifier = Modifier,
     size: Dp = 48.dp
 ) {
-    val subSize = size / 2.2f
     Box(
         modifier = modifier.size(size),
         contentAlignment = Alignment.Center
@@ -86,8 +93,8 @@ fun FolderIcon(
             contentAlignment = Alignment.Center
         ) {
             if (folderInfo.items.isNotEmpty()) {
-                val icons = folderInfo.items.take(4)
-                icons.forEachIndexed { idx, item ->
+                val subSize = size / 2.2f
+                folderInfo.items.take(4).forEachIndexed { idx, _ ->
                     val offsetX = if (idx % 2 == 0) -subSize / 4 else subSize / 4
                     val offsetY = if (idx / 2 == 0) -subSize / 4 else subSize / 4
                     Box(

@@ -7,9 +7,6 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import dev.chrisbanes.haze.HazeState
-import dev.chrisbanes.haze.HazeStyle
-import dev.chrisbanes.haze.HazeTint
-import dev.chrisbanes.haze.materials.HazeMaterials
 
 private val LightColors = lightColorScheme(
     primary = Color(0xFF007AFF),
@@ -61,27 +58,10 @@ fun LauncherTheme(
     content: @Composable () -> Unit
 ) {
     val colorScheme = if (darkTheme) DarkColors else LightColors
-
-    MaterialTheme(
-        colorScheme = colorScheme,
-        content = content
-    )
+    MaterialTheme(colorScheme = colorScheme, content = content)
 }
 
 @Composable
 fun rememberLauncherHazeState(): HazeState {
     return androidx.compose.runtime.remember { HazeState() }
 }
-
-fun launcherHazeStyle(
-    isDark: Boolean = false
-): HazeStyle = HazeStyle(
-    tints = listOf(
-        HazeTint(
-            color = if (isDark) Color(0x99000000) else Color(0xE6F2F2F7),
-            size = 0f
-        )
-    ),
-    noiseFactor = 0f,
-    blurRadius = 32f
-)

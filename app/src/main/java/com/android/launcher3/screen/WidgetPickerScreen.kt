@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
@@ -14,7 +15,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.unit.dp
 import com.android.launcher3.model.WidgetInfo
 
@@ -36,7 +37,6 @@ fun WidgetPickerScreen(
     }
 
     var searchQuery by remember { mutableStateOf("") }
-
     val filtered = remember(searchQuery, sampleWidgets) {
         if (searchQuery.isBlank()) sampleWidgets
         else sampleWidgets.filter { it.label.contains(searchQuery, ignoreCase = true) }
@@ -90,28 +90,25 @@ fun WidgetPickerScreen(
                     modifier = Modifier.size(20.dp)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
-                var text by remember { mutableStateOf("") }
-                BasicTextField(
-                    value = text,
-                    onValueChange = {
-                        text = it
-                        searchQuery = it
-                    },
-                    textStyle = MaterialTheme.typography.bodyLarge.copy(
-                        color = MaterialTheme.colorScheme.onSurface
-                    ),
-                    decorationBox = { innerTextField ->
-                        if (text.isEmpty()) {
-                            Text(
-                                text = "Search widgets",
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                        innerTextField()
-                    },
-                    singleLine = true
-                )
+                Box(modifier = Modifier.weight(1f)) {
+                    if (searchQuery.isEmpty()) {
+                        Text(
+                            text = "Search widgets",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    BasicTextField(
+                        value = searchQuery,
+                        onValueChange = { searchQuery = it },
+                        textStyle = MaterialTheme.typography.bodyLarge.copy(
+                            color = MaterialTheme.colorScheme.onSurface
+                        ),
+                        cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
             }
         }
 
@@ -136,10 +133,7 @@ fun WidgetPickerScreen(
                 verticalArrangement = Arrangement.spacedBy(12.dp),
                 contentPadding = PaddingValues(vertical = 8.dp)
             ) {
-                items(
-                    items = filtered,
-                    key = { it.id }
-                ) { widget ->
+                items(items = filtered, key = { it.id }) { widget ->
                     WidgetItem(widget = widget)
                 }
             }
@@ -148,9 +142,7 @@ fun WidgetPickerScreen(
 }
 
 @Composable
-private fun WidgetItem(
-    widget: WidgetInfo
-) {
+private fun WidgetItem(widget: WidgetInfo) {
     Column(
         modifier = Modifier
             .fillMaxWidth()

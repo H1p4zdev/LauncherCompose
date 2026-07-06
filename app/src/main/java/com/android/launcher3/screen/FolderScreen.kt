@@ -14,17 +14,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.android.launcher3.model.AppInfo
 import com.android.launcher3.model.FolderInfo
 import com.android.launcher3.state.LauncherViewModel
 import com.android.launcher3.theme.AppIcon
-import dev.chrisbanes.haze.HazeEffect
-import dev.chrisbanes.haze.HazeState
 
 @Composable
 fun FolderScreen(
     viewModel: LauncherViewModel,
-    hazeState: HazeState,
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -78,7 +74,6 @@ fun FolderScreen(
                                 folderInfo.items.size <= 9 -> 3
                                 else -> 4
                             }
-
                             LazyVerticalGrid(
                                 columns = GridCells.Fixed(cols),
                                 modifier = Modifier
@@ -112,7 +107,6 @@ fun FolderScreen(
                         }
 
                         Spacer(modifier = Modifier.height(12.dp))
-
                         TextButton(
                             onClick = { viewModel.closeFolder() },
                             modifier = Modifier.align(Alignment.End)

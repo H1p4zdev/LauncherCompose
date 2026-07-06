@@ -9,12 +9,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.unit.dp
 import com.android.launcher3.model.AppInfo
 import com.android.launcher3.state.LauncherViewModel
 import com.android.launcher3.theme.AppIcon
-import dev.chrisbanes.haze.HazeEffect
 import dev.chrisbanes.haze.HazeState
+import dev.chrisbanes.haze.hazeEffect
+import dev.chrisbanes.haze.hazeSource
 
 @Composable
 fun HotseatScreen(
@@ -24,6 +26,7 @@ fun HotseatScreen(
 ) {
     val hotseat = viewModel.hotseat
     val isDark = MaterialTheme.colorScheme.background.luminance() < 0.5f
+    val bgColor = if (isDark) Color(0x99000000) else Color(0xE6F2F2F7)
 
     Box(
         modifier = modifier
@@ -31,57 +34,44 @@ fun HotseatScreen(
             .height(80.dp)
             .padding(horizontal = 12.dp, vertical = 8.dp)
             .clip(RoundedCornerShape(20.dp))
-            .then(
-                Modifier.background(
-                    Color.Transparent
-                )
-            ),
+            .hazeSource(hazeState)
+            .background(bgColor, RoundedCornerShape(20.dp))
     ) {
-        Box(
+        Row(
             modifier = Modifier
                 .fillMaxSize()
-                .clip(RoundedCornerShape(20.dp))
-                .background(
-                    if (isDark) Color(0x99000000) else Color(0xE6F2F2F7),
-                    RoundedCornerShape(20.dp)
-                )
+                .padding(horizontal = 8.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 8.dp),
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                val items = hotseat.items.toMutableList()
-                while (items.size < hotseat.maxCount) {
-                    items.add(
-                        AppInfo(
-                            id = -(items.size + 1).toLong(),
-                            screenId = -1,
-                            cellX = items.size,
-                            cellY = 0,
-                            componentName = android.content.ComponentName("", ""),
-                            title = "",
-                            user = android.os.Process.myUserHandle()
-                        )
+            val items = hotseat.items.toMutableList()
+            while (items.size < hotseat.maxCount) {
+                items.add(
+                    AppInfo(
+                        id = -(items.size + 1).toLong(),
+                        screenId = -1,
+                        cellX = items.size,
+                        cellY = 0,
+                        componentName = android.content.ComponentName("", ""),
+                        title = "",
+                        user = android.os.Process.myUserHandle()
                     )
-                }
+                )
+            }
 
-                items.forEach { appInfo ->
-                    if (appInfo.componentName.packageName.isNotEmpty()) {
-                        AppIcon(
-                            appInfo = appInfo,
-                            modifier = Modifier.size(48.dp)
-                        )
-                    } else {
-                        Box(
-                            modifier = Modifier
-                                .size(48.dp)
-                                .clip(RoundedCornerShape(14.dp))
-                                .background(Color.Transparent)
-                        )
-                    }
+            items.forEach { appInfo ->
+                if (appInfo.componentName.packageName.isNotEmpty()) {
+                    AppIcon(
+                        appInfo = appInfo,
+                        modifier = Modifier.size(48.dp)
+                    )
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .size(48.dp)
+                            .clip(RoundedCornerShape(14.dp))
+                            .background(Color.Transparent)
+                    )
                 }
             }
         }

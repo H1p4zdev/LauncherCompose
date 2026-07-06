@@ -1,11 +1,11 @@
 package com.android.launcher3.screen
 
-import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
@@ -13,23 +13,20 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.android.launcher3.model.AppInfo
 import com.android.launcher3.state.LauncherViewModel
 import com.android.launcher3.theme.AppIcon
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AllAppsScreen(
     viewModel: LauncherViewModel,
     modifier: Modifier = Modifier
 ) {
-    val uiState by viewModel.uiState.collectAsState()
     var searchQuery by remember { mutableStateOf("") }
     val filteredApps = viewModel.getFilteredApps(searchQuery)
-    val isDark = MaterialTheme.colorScheme.background.luminance() < 0.5f
 
     Column(
         modifier = modifier
@@ -53,9 +50,7 @@ fun AllAppsScreen(
                 .padding(horizontal = 16.dp)
                 .height(48.dp)
                 .clip(RoundedCornerShape(12.dp))
-                .background(
-                    if (isDark) Color(0x332C2C2E) else Color(0x33000000)
-                ),
+                .background(MaterialTheme.colorScheme.surfaceVariant),
             contentAlignment = Alignment.CenterStart
         ) {
             Row(
@@ -71,29 +66,25 @@ fun AllAppsScreen(
                     modifier = Modifier.size(20.dp)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
-                var text by remember { mutableStateOf("") }
-                BasicTextField(
-                    value = text,
-                    onValueChange = {
-                        text = it
-                        searchQuery = it
-                    },
-                    modifier = Modifier.weight(1f),
-                    textStyle = MaterialTheme.typography.bodyLarge.copy(
-                        color = MaterialTheme.colorScheme.onSurface
-                    ),
-                    decorationBox = { innerTextField ->
-                        if (text.isEmpty()) {
-                            Text(
-                                text = "Search apps",
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                        innerTextField()
-                    },
-                    singleLine = true
-                )
+                Box(modifier = Modifier.weight(1f)) {
+                    if (searchQuery.isEmpty()) {
+                        Text(
+                            text = "Search apps",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    BasicTextField(
+                        value = searchQuery,
+                        onValueChange = { searchQuery = it },
+                        textStyle = MaterialTheme.typography.bodyLarge.copy(
+                            color = MaterialTheme.colorScheme.onSurface
+                        ),
+                        cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
             }
         }
 
@@ -154,17 +145,10 @@ private fun AllAppsItem(
             .fillMaxWidth()
             .padding(vertical = 2.dp)
             .clip(RoundedCornerShape(12.dp))
-            .then(
-                Modifier.background(
-                    MaterialTheme.colorScheme.surface.copy(alpha = 0.001f)
-                )
-            ),
+            .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.001f)),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        AppIcon(
-            appInfo = appInfo,
-            modifier = Modifier.size(40.dp)
-        )
+        AppIcon(appInfo = appInfo, modifier = Modifier.size(40.dp))
         Spacer(modifier = Modifier.width(12.dp))
         Column {
             Text(
