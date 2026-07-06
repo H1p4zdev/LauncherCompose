@@ -2,55 +2,42 @@
 agp = "8.7.3"
 kotlin = "2.1.0"
 compose-bom = "2024.12.01"
-compose-compiler = "2.1.0"
-activity-compose = "1.9.3"
-lifecycle = "2.8.7"
-navigation = "2.8.5"
-room = "2.6.1"
-coroutines = "1.9.0"
-cupertino = "0.1.0-alpha04"
-haze = "1.5.4"
-coil = "2.7.0"
+activity = "1.9.3"
 core-ktx = "1.15.0"
 core-splashscreen = "1.0.1"
-profileinstaller = "1.4.1"
+lifecycle = "2.8.7"
+navigation = "2.8.5"
 datastore = "1.1.1"
+haze = "1.5.4"
+coil = "2.7.0"
+cupertino = "0.1.0-alpha04"
+profileinstaller = "1.4.1"
+coroutines = "1.9.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "core-ktx" }
 androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "core-splashscreen" }
-androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activity-compose" }
+androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activity" }
 androidx-profileinstaller = { group = "androidx.profileinstaller", name = "profileinstaller", version.ref = "profileinstaller" }
-
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "compose-bom" }
 androidx-compose-ui = { group = "androidx.compose.ui", name = "ui" }
 androidx-compose-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
-androidx-compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
 androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
+androidx-compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
 androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
 androidx-compose-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
 androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation" }
 androidx-compose-runtime = { group = "androidx.compose.runtime", name = "runtime" }
-
 androidx-lifecycle-runtime-compose = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "lifecycle" }
 androidx-lifecycle-viewmodel-compose = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "lifecycle" }
-
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigation" }
-
-cupertino-core = { group = "io.github.alexzhirkevich", name = "cupertino-core", version.ref = "cupertino" }
+androidx-datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore" }
+cupertino-core = { group = "io.github.alexzhirkevich", name = "cupertino-adaptive", version.ref = "cupertino" }
 cupertino-adaptive = { group = "io.github.alexzhirkevich", name = "cupertino-adaptive", version.ref = "cupertino" }
 cupertino-icons = { group = "io.github.alexzhirkevich", name = "cupertino-icons-extended", version.ref = "cupertino" }
-
 haze = { group = "dev.chrisbanes.haze", name = "haze", version.ref = "haze" }
 haze-materials = { group = "dev.chrisbanes.haze", name = "haze-materials", version.ref = "haze" }
-
 coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
-
-androidx-datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore" }
-androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
-androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
-androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
-
 kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "coroutines" }
 kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "coroutines" }
 
@@ -58,4 +45,3 @@ kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
-
