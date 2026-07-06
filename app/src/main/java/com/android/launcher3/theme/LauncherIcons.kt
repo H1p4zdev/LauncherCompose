@@ -5,7 +5,9 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -15,8 +17,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.android.launcher3.model.AppInfo
 import com.android.launcher3.model.FolderInfo
 
@@ -24,7 +28,8 @@ import com.android.launcher3.model.FolderInfo
 fun AppIcon(
     appInfo: AppInfo,
     modifier: Modifier = Modifier,
-    size: Dp = 48.dp
+    size: Dp = 48.dp,
+    badgeCount: Int? = null
 ) {
     val context = LocalContext.current
     val iconBitmap = remember(appInfo.componentName) {
@@ -68,7 +73,27 @@ fun AppIcon(
                 androidx.compose.material3.Text(
                     text = appInfo.title.take(1).uppercase(),
                     color = Color.White,
-                    style = androidx.compose.material3.MaterialTheme.typography.titleMedium
+                    style = MaterialTheme.typography.titleMedium
+                )
+            }
+        }
+
+        if (badgeCount != null && badgeCount > 0) {
+            val badgeSize = size * 0.35f
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .size(badgeSize)
+                    .clip(CircleShape)
+                    .background(Color(0xFFFF3B30)),
+                contentAlignment = Alignment.Center
+            ) {
+                androidx.compose.material3.Text(
+                    text = if (badgeCount > 9) "9+" else badgeCount.toString(),
+                    color = Color.White,
+                    fontSize = (badgeSize.value * 0.5f).sp,
+                    textAlign = TextAlign.Center,
+                    maxLines = 1
                 )
             }
         }

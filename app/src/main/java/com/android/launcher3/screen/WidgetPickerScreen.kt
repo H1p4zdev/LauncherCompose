@@ -1,6 +1,7 @@
 package com.android.launcher3.screen
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -10,6 +11,7 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Widgets
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -23,6 +25,7 @@ import com.android.launcher3.model.WidgetInfo
 @Composable
 fun WidgetPickerScreen(
     onBack: () -> Unit,
+    onAddWidget: (WidgetInfo) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val sampleWidgets = remember {
@@ -33,6 +36,9 @@ fun WidgetPickerScreen(
             WidgetInfo(4, 0, 0, 0, 4, 1, android.content.ComponentName("com.google.android.deskclock", "DigitalClock"), "Digital Clock"),
             WidgetInfo(5, 0, 0, 0, 2, 2, android.content.ComponentName("com.google.android.keep", "NoteWidget"), "Keep Notes"),
             WidgetInfo(6, 0, 0, 0, 3, 2, android.content.ComponentName("com.google.android.apps.photos", "PhotoWidget"), "Photos"),
+            WidgetInfo(7, 0, 0, 0, 1, 2, android.content.ComponentName("com.google.android.deskclock", "AnalogClock"), "Analog Clock"),
+            WidgetInfo(8, 0, 0, 0, 4, 2, android.content.ComponentName("com.google.android.deskclock", "WorldClock"), "World Clock"),
+            WidgetInfo(9, 0, 0, 0, 2, 2, android.content.ComponentName("com.google.android.calendar", "AgendaWidget"), "Agenda"),
         )
     }
 
@@ -134,7 +140,10 @@ fun WidgetPickerScreen(
                 contentPadding = PaddingValues(vertical = 8.dp)
             ) {
                 items(items = filtered, key = { it.id }) { widget ->
-                    WidgetItem(widget = widget)
+                    WidgetItem(
+                        widget = widget,
+                        onClick = { onAddWidget(widget) }
+                    )
                 }
             }
         }
@@ -142,12 +151,16 @@ fun WidgetPickerScreen(
 }
 
 @Composable
-private fun WidgetItem(widget: WidgetInfo) {
+private fun WidgetItem(
+    widget: WidgetInfo,
+    onClick: () -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
             .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+            .clickable(onClick = onClick)
             .padding(12.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -160,7 +173,7 @@ private fun WidgetItem(widget: WidgetInfo) {
             contentAlignment = Alignment.Center
         ) {
             Icon(
-                imageVector = Icons.Default.Search,
+                imageVector = Icons.Default.Widgets,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(32.dp)
