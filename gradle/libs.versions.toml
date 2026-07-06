@@ -7,7 +7,7 @@ activity-compose = "1.9.3"
 lifecycle = "2.8.7"
 navigation = "2.8.5"
 coroutines = "1.9.0"
-cupertino = "0.1.0-beta.3"
+cupertino = "0.1.0-alpha04"
 haze = "1.1.0"
 coil = "2.7.0"
 core-ktx = "1.15.0"
@@ -35,9 +35,9 @@ androidx-lifecycle-viewmodel-compose = { group = "androidx.lifecycle", name = "l
 
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigation" }
 
-cupertino-core = { group = "com.alexzhirkevich", name = "cupertino-core", version.ref = "cupertino" }
-cupertino-adaptive = { group = "com.alexzhirkevich", name = "cupertino-adaptive", version.ref = "cupertino" }
-cupertino-icons = { group = "com.alexzhirkevich", name = "cupertino-icons-extended", version.ref = "cupertino" }
+cupertino-core = { group = "io.github.alexzhirkevich", name = "cupertino-core", version.ref = "cupertino" }
+cupertino-adaptive = { group = "io.github.alexzhirkevich", name = "cupertino-adaptive", version.ref = "cupertino" }
+cupertino-icons = { group = "io.github.alexzhirkevich", name = "cupertino-icons-extended", version.ref = "cupertino" }
 
 haze = { group = "dev.chrisbanes.haze", name = "haze", version.ref = "haze" }
 haze-materials = { group = "dev.chrisbanes.haze", name = "haze-materials", version.ref = "haze" }

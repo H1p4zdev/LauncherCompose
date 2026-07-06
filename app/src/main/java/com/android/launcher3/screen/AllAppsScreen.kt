@@ -19,9 +19,6 @@ import androidx.compose.ui.unit.dp
 import com.android.launcher3.model.AppInfo
 import com.android.launcher3.state.LauncherViewModel
 import com.android.launcher3.theme.AppIcon
-import com.alexzhirkevich.cupertino.CupertinoSearchField
-import com.alexzhirkevich.cupertino.CupertinoSearchFieldDefaults
-import com.alexzhirkevich.cupertino.adaptive.Adaptive
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
